@@ -1,23 +1,23 @@
-# Crestview Financial Group — Zero Trust Architecture IAM Simulation
+# Crestview Financial Group - Zero Trust Architecture IAM Simulation
 
-> **SEC815 Capstone Project — Seneca College**  
+> **SEC815 Capstone Project - Seneca College**  
 > Designing ZTA Solutions for a Canadian Financial Institution
 
 ---
 
 ## Overview
 
-This repository documents the design and partial simulation of a Zero Trust Architecture (ZTA) Identity and Access Management (IAM) solution for **Crestview Financial Group (CFG)** — a fictional mid-sized Toronto-based financial services firm offering retail banking, wealth management, and digital banking services.
+This repository documents the design and partial simulation of a Zero Trust Architecture (ZTA) Identity and Access Management (IAM) solution for **Crestview Financial Group (CFG)** - a fictional mid-sized Toronto-based financial services firm offering retail banking, wealth management and digital banking services.
 
-The project aligns four enterprise IAM tools to the **CISA Zero Trust Maturity Model's five pillars**, anchored to a defined DAAS protect surface, and demonstrates live configuration of identity controls using Auth0 (Okta) and Microsoft Entra ID.
+The project aligns four enterprise IAM tools to the **CISA Zero Trust Maturity Model's five pillars**, anchored to a defined DAAS protect surface and demonstrates live configuration of identity controls using Auth0 (Okta) and Microsoft Entra ID.
 
-This work was completed as part of **SEC815 — Incident Response** at Seneca College, with the broader goal of building a portfolio-grade IAM artefact relevant to cybersecurity roles in the Canadian financial services sector.
+This work was completed as part of **SEC815 - Incident Response** at Seneca College, with the broader goal of building a portfolio-grade IAM artefact relevant to cybersecurity roles in the Canadian financial services sector.
 
 ---
 
-## The Protect Surface — DAAS Framework
+## The Protect Surface - DAAS Framework
 
-Zero Trust does not attempt to secure everything equally. Instead, it identifies the smallest, most defensible grouping of critical assets — the **protect surface** — organized by the DAAS framework.
+Zero Trust does not attempt to secure everything equally. Instead, it identifies the smallest, most defensible grouping of critical assets - the **protect surface** - organized by the DAAS framework.
 
 | Category | CFG Assets | Regulatory Consequence if Breached |
 |---|---|---|
@@ -40,23 +40,23 @@ Zero Trust does not attempt to secure everything equally. Instead, it identifies
 
 ---
 
-## Live Demo — Auth0 (Okta)
+## Live Demo - Auth0 (Okta)
 
 An Auth0 tenant was configured to simulate CFG's digital banking portal identity controls, demonstrating the **Identity pillar** in a live environment.
 
-### CFG Digital Banking Portal — Registered Application
+### CFG Digital Banking Portal - Registered Application
 
 Auth0 was configured with a Single Page Application representing CFG's customer-facing digital banking portal. This simulates how Okta Workforce Identity would be deployed to enforce authentication policies at the application layer.
 
 ![CFG Digital Banking Portal](okta/screenshots/01-cfg-application.png)
 
-### MFA Policy — Always Enforced
+### MFA Policy - Always Enforced
 
-MFA policy was set to **Always** — every login to the CFG banking portal requires an additional authentication factor regardless of device, location, or prior session. This directly implements ZTA's principle of per-session verification with no implicit trust.
+MFA policy was set to **Always** - every login to the CFG banking portal requires an additional authentication factor regardless of device, location, or prior session. This directly implements ZTA's principle of per-session verification with no implicit trust.
 
 ![MFA Always Policy](okta/screenshots/02-mfa-always-policy.png)
 
-### Adaptive MFA Risk Assessment — Enabled
+### Adaptive MFA Risk Assessment - Enabled
 
 Adaptive MFA Risk Assessment was enabled, meaning every login transaction is risk-scored and recorded in audit logs. This supports anomaly detection and aligns with OSFI B-13's requirement for continuous monitoring of access events.
 
@@ -64,13 +64,13 @@ Adaptive MFA Risk Assessment was enabled, meaning every login transaction is ris
 
 ### Attack Protection — Active Controls
 
-Suspicious IP Throttling and Brute-force Protection are enabled, protecting CFG's banking portal against credential stuffing and automated attack campaigns — the primary external threat vector against the Applications layer of CFG's protect surface.
+Suspicious IP Throttling and Brute-force Protection are enabled, protecting CFG's banking portal against credential stuffing and automated attack campaigns - the primary external threat vector against the Applications layer of CFG's protect surface.
 
 ![Attack Protection](okta/screenshots/04-attack-protection.png)
 
 ---
 
-## Live Demo — Microsoft Entra ID
+## Live Demo - Microsoft Entra ID
 
 Microsoft Entra ID was accessed via a real enterprise tenant to demonstrate the Identity and Devices pillars in a production-scale environment.
 
@@ -82,13 +82,13 @@ The Seneca College Entra ID tenant (120,000+ users, 193,000+ devices, 734 applic
 
 ### User Identity Object
 
-A real user identity object was inspected, demonstrating how CFG employee identities would be represented in Entra ID — including group memberships, assigned licenses, and device associations.
+A real user identity object was inspected, demonstrating how CFG employee identities would be represented in Entra ID - including group memberships, assigned licenses and device associations.
 
 ![User Profile](entra-id/screenshots/02-user-profile.png)
 
 ### Device Compliance View
 
-The device management layer was accessed, demonstrating how Entra ID enforces device compliance as a condition of access — a core control in the Devices pillar of CFG's ZTA architecture.
+The device management layer was accessed, demonstrating how Entra ID enforces device compliance as a condition of access - a core control in the Devices pillar of CFG's ZTA architecture.
 
 ![Devices View](entra-id/screenshots/03-devices-view.png)
 
@@ -165,7 +165,8 @@ crestview-zta-iam/
 
 ## Author
 
-**Tony Nnamdi** | Seneca College — Cloud Administration & Architecture  
+**Tony Nnamdi** | Seneca College - Cloud Administration & Architecture  
 Cybersecurity Post-Graduate | Centennial College  
-GitHub: [@tnnamdi](https://github.com/tnnamdi)  
+GitHub: [@tnnamdi](https://github.com/tnnamdi) 
+LinkedIn: www.linkedin.com/in/tonynnamdi    
 Focus: IAM · GRC · Security Analysis · Zero Trust Architecture
