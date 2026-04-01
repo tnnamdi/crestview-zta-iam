@@ -1,0 +1,123 @@
+# SailPoint IdentityNow — Role Definition
+# Crestview Financial Group (CFG)
+# Role: Bank Teller (Retail Banking)
+# ZTA Pillar: Data + Applications & Workloads
+# Principle: Least-privilege access — minimum entitlements required for role function
+
+role:
+  name: "CFG_ROLE_BANK_TELLER"
+  displayName: "CFG Bank Teller — Retail Banking"
+  description: >
+    Standard access role for CFG retail banking tellers.
+    Scoped to transaction viewing, customer account lookup,
+    and deposit processing only. Explicitly excludes access
+    to KYC/AML documentation, SWIFT operations, and
+    administrative functions.
+  owner: "retail-banking-manager@crestviewfg.com"
+  status: "ENABLED"
+  type: "IT"
+
+  # Access Profile — what this role grants
+  accessProfiles:
+
+    - name: "CFG_AP_CORE_BANKING_TELLER"
+      description: "Read access to customer accounts and transaction history"
+      entitlements:
+        - application: "CFG-Core-Banking-System"
+          attribute: "role"
+          value: "TELLER_READ_ONLY"
+          description: "View customer account balances and transaction history"
+
+        - application: "CFG-Core-Banking-System"
+          attribute: "role"
+          value: "DEPOSIT_PROCESSING"
+          description: "Process customer deposits and withdrawals up to $10,000"
+
+        - application: "CFG-Digital-Banking-Portal"
+          attribute: "role"
+          value: "AGENT_SUPPORT"
+          description: "View customer digital banking sessions for support purposes"
+
+    - name: "CFG_AP_STANDARD_EMPLOYEE"
+      description: "Standard employee entitlements — all CFG staff"
+      entitlements:
+        - application: "Microsoft-365"
+          attribute: "license"
+          value: "M365_E3"
+          description: "Standard Microsoft 365 license"
+
+        - application: "CFG-Intranet"
+          attribute: "role"
+          value: "EMPLOYEE_STANDARD"
+          description: "Standard intranet access"
+
+  # Explicit Exclusions — what this role must NEVER grant
+  # SoD policy enforcement — these combinations are prohibited
+  separationOfDuties:
+    prohibited:
+      - description: "Teller cannot also have transaction approval authority"
+        entitlements:
+          - "CFG-Core-Banking-System:TRANSACTION_APPROVER"
+
+      - description: "Teller cannot access KYC/AML documentation"
+        entitlements:
+          - "CFG-Core-Banking-System:KYC_AML_VIEWER"
+          - "CFG-Core-Banking-System:KYC_AML_EDITOR"
+
+      - description: "Teller cannot have SWIFT or payment network access"
+        entitlements:
+          - "CFG-SWIFT-Gateway:OPERATOR"
+          - "CFG-SWIFT-Gateway:VIEWER"
+          - "CFG-Payment-Gateway:ADMIN"
+
+      - description: "Teller cannot have administrative or privileged system access"
+        entitlements:
+          - "CFG-Core-Banking-System:SYSTEM_ADMIN"
+          - "CFG-Azure:CONTRIBUTOR"
+          - "CFG-Azure:OWNER"
+
+  # Certification Policy — how access is reviewed
+  certificationPolicy:
+    frequency: "QUARTERLY"
+    certifier: "retail-banking-manager@crestviewfg.com"
+    escalationCertifier: "ciso@crestviewfg.com"
+    reminders:
+      - daysBefore: 14
+      - daysBefore: 7
+      - daysBefore: 2
+    onTimeout: "REVOKE"
+    description: >
+      Quarterly review required. If business owner does not
+      certify within the review window, access is automatically
+      revoked per OSFI B-13 governance requirements.
+
+  # Lifecycle — automated provisioning rules
+  lifecycle:
+    onJoin:
+      trigger: "HR_SYSTEM_DEPARTMENT=RETAIL_BANKING AND HR_SYSTEM_JOBTITLE=TELLER"
+      action: "PROVISION_IMMEDIATELY"
+      approvalRequired: false
+
+    onRoleChange:
+      trigger: "HR_SYSTEM_DEPARTMENT != RETAIL_BANKING"
+      action: "DEPROVISION_WITHIN_24H"
+      approvalRequired: false
+      notification: "manager@crestviewfg.com"
+
+    onTermination:
+      trigger: "HR_SYSTEM_STATUS=TERMINATED"
+      action: "DEPROVISION_IMMEDIATELY"
+      approvalRequired: false
+      escalation: "it-security@crestviewfg.com"
+
+  # ZTA Metadata
+  zta:
+    pillar: "Data + Applications & Workloads"
+    protectSurfaceLinkage:
+      - "Data: Customer PII and transaction data — read-only scoped access"
+      - "Applications: Core banking system and digital portal — teller role only"
+    principle: "Least-privilege — minimum access required for role function, no more"
+    regulatoryAlignment:
+      - "OSFI B-13: Formal access governance with audit trail"
+      - "PIPEDA: PII access scoped to business need only"
+      - "FINTRAC: AML data explicitly excluded from teller role"

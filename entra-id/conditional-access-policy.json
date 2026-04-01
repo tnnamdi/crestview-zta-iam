@@ -1,0 +1,133 @@
+{
+  "displayName": "CFG-CA-001 — Require MFA and Compliant Device for All CFG Applications",
+  "description": "Core ZTA Conditional Access policy for Crestview Financial Group. Requires MFA and device compliance for all users accessing any CFG application. No network location exceptions — enforces ZTA principle that location is not a trust signal.",
+  "state": "enabled",
+  "zta_pillar": ["Identity", "Devices"],
+  "protect_surface_linkage": ["Applications", "Data", "Services"],
+
+  "conditions": {
+    "users": {
+      "includeUsers": ["All"],
+      "excludeUsers": [],
+      "includeGroups": [],
+      "excludeGroups": ["CFG-BreakGlass-Accounts"],
+      "includeRoles": [],
+      "excludeRoles": []
+    },
+
+    "applications": {
+      "includeApplications": ["All"],
+      "excludeApplications": [],
+      "zta_note": "All applications included — ZTA principle: no application is implicitly trusted"
+    },
+
+    "locations": {
+      "includeLocations": ["All"],
+      "excludeLocations": [],
+      "zta_note": "All locations included — network location is NOT a trust signal under ZTA"
+    },
+
+    "platforms": {
+      "includePlatforms": ["all"],
+      "excludePlatforms": []
+    },
+
+    "clientAppTypes": ["all"],
+
+    "signInRiskLevels": [],
+    "userRiskLevels": []
+  },
+
+  "grantControls": {
+    "operator": "AND",
+    "builtInControls": [
+      "mfa",
+      "compliantDevice"
+    ],
+    "zta_note": "Both MFA AND device compliance required — neither alone is sufficient"
+  },
+
+  "sessionControls": {
+    "signInFrequency": {
+      "value": 1,
+      "type": "hours",
+      "isEnabled": true,
+      "zta_note": "Re-authentication required every hour — no persistent implicit trust"
+    },
+    "persistentBrowser": {
+      "mode": "never",
+      "isEnabled": true,
+      "zta_note": "Persistent browser sessions disabled — every session must be verified"
+    },
+    "cloudAppSecurity": {
+      "cloudAppSecurityType": "monitorOnly",
+      "isEnabled": true
+    }
+  },
+
+  "additionalPolicies": [
+    {
+      "displayName": "CFG-CA-002 — Block Legacy Authentication",
+      "description": "Legacy authentication protocols do not support MFA and must be blocked entirely. Legacy auth is a common attack vector — blocking it is a prerequisite for effective ZTA.",
+      "state": "enabled",
+      "conditions": {
+        "clientAppTypes": ["exchangeActiveSync", "other"]
+      },
+      "grantControls": {
+        "builtInControls": ["block"]
+      },
+      "zta_note": "Legacy protocols blocked — cannot enforce MFA on legacy auth, therefore it must be eliminated"
+    },
+    {
+      "displayName": "CFG-CA-003 — Privileged Role MFA + PIM Enforcement",
+      "description": "All privileged directory roles require MFA at every sign-in with no exception. Privileged Identity Management (PIM) enforces JIT activation for all admin roles.",
+      "state": "enabled",
+      "conditions": {
+        "users": {
+          "includeRoles": [
+            "Global Administrator",
+            "Privileged Role Administrator",
+            "Security Administrator",
+            "Exchange Administrator",
+            "SharePoint Administrator"
+          ]
+        }
+      },
+      "grantControls": {
+        "operator": "AND",
+        "builtInControls": ["mfa", "compliantDevice"],
+        "customAuthenticationFactors": ["FIDO2 Security Key"]
+      },
+      "sessionControls": {
+        "signInFrequency": {
+          "value": 1,
+          "type": "hours"
+        }
+      },
+      "zta_note": "Privileged accounts face the highest risk — strongest controls applied. PIM ensures no standing admin privilege."
+    },
+    {
+      "displayName": "CFG-CA-004 — High User Risk Requires Password Change",
+      "description": "When Identity Protection detects a high-risk user (e.g. credentials found in breach data), the user is required to change their password before access is restored.",
+      "state": "enabled",
+      "conditions": {
+        "users": {
+          "includeUsers": ["All"]
+        },
+        "userRiskLevels": ["high"]
+      },
+      "grantControls": {
+        "operator": "AND",
+        "builtInControls": ["mfa", "passwordChange"]
+      },
+      "zta_note": "Compromised identity is immediately contained — risk-based response prevents credential abuse"
+    }
+  ],
+
+  "regulatory_alignment": {
+    "OSFI_B13": "Conditional Access provides the governance and identification layer required by B-13 Principles 3 and 14 — continuous access verification with risk-based controls",
+    "OSFI_E21": "Blocking legacy auth and requiring device compliance reduces the attack surface available to adversaries — directly supporting operational resilience objectives",
+    "PIPEDA": "MFA and device compliance requirements reduce the risk of unauthorized access to customer PII through credential compromise",
+    "FINTRAC": "Privileged role enforcement and session controls prevent unauthorized modification of AML transaction records"
+  }
+}

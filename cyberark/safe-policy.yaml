@@ -1,0 +1,128 @@
+# CyberArk PAM — Safe Policy Configuration
+# Crestview Financial Group (CFG)
+# Safe: CFG-SWIFT-OPERATORS
+# ZTA Pillar: Networks
+# Principle: No standing privilege — all SWIFT credentials brokered through vault
+
+safe:
+  name: "CFG-SWIFT-OPERATORS"
+  displayName: "CFG SWIFT Payment Network — Operator Credentials"
+  description: >
+    Credential vault for all CFG SWIFT interbank payment network
+    operator accounts. No operator holds a SWIFT credential directly.
+    All access is brokered, time-limited, dual-approved, and fully
+    recorded. Designed to prevent the attack vector used in the
+    2016 Bangladesh Bank SWIFT heist ($81M USD).
+  owner: "cfg-pam-admin"
+  managingCPM: "CFG-PasswordManager"
+  numberOfDaysRetention: 90
+
+  # Access Controls — who can request access to this safe
+  members:
+    - memberName: "CFG-SWIFT-OperatorGroup"
+      memberType: "GROUP"
+      permissions:
+        retrieveAccounts: false      # Cannot retrieve raw credential
+        listAccounts: true           # Can see accounts exist
+        useAccounts: true            # Can initiate brokered session
+        viewAuditLog: false
+        viewSafeMembers: false
+      sessionRequirements:
+        dualApprovalRequired: true   # Two approvers required for any SWIFT session
+        approverGroup: "CFG-SWIFT-Approvers"
+        maxSessionDurationMinutes: 30
+        recordSession: true
+        allowTransparentConnections: false
+
+    - memberName: "CFG-SecurityTeam"
+      memberType: "GROUP"
+      permissions:
+        retrieveAccounts: false
+        listAccounts: true
+        useAccounts: false
+        viewAuditLog: true           # Security team can review session recordings
+        viewSafeMembers: true
+
+    - memberName: "CFG-PAM-Auditor"
+      memberType: "USER"
+      permissions:
+        retrieveAccounts: false
+        listAccounts: true
+        useAccounts: false
+        viewAuditLog: true
+        exportAuditLog: true         # For OSFI B-13 audit submissions
+
+  # Account policies — how credentials are managed
+  accountPolicy:
+    passwordRotation:
+      automatic: true
+      frequency: "AFTER_EACH_USE"   # Credential rotated after every session
+      complexity:
+        minLength: 24
+        requireUppercase: true
+        requireLowercase: true
+        requireNumbers: true
+        requireSpecialChars: true
+
+    # Just-in-Time access workflow
+    justInTimeAccess:
+      enabled: true
+      requestWorkflow:
+        requireBusinessJustification: true
+        requireTicketNumber: true
+        ticketSystem: "CFG-ServiceNow"
+        approvalLevels: 2
+        approvalTimeoutMinutes: 15
+        onTimeout: "DENY"
+      sessionParameters:
+        maxDurationMinutes: 30
+        idleTimeoutMinutes: 5
+        autoTerminateOnIdle: true
+
+    # Session recording configuration
+    sessionRecording:
+      enabled: true
+      recordVideo: true
+      recordKeystrokes: true
+      recordCommands: true
+      storageLocation: "CFG-SessionRecordings-Vault"
+      retentionDays: 365            # 1 year retention for regulatory compliance
+      tamperProof: true
+      alertOnSuspiciousActivity: true
+      suspiciousPatterns:
+        - "DELETE FROM"             # SQL deletion commands
+        - "DROP TABLE"
+        - "SWIFT:FIN:103"           # SWIFT payment message initiation
+        - "MT103"                   # SWIFT payment instruction format
+
+  # Alerting and monitoring
+  monitoring:
+    alertOnFailedAccess: true
+    alertOnAfterHoursAccess: true
+    afterHoursDefinition:
+      timezone: "America/Toronto"
+      businessHoursStart: "08:00"
+      businessHoursEnd: "18:00"
+      businessDays: ["MON", "TUE", "WED", "THU", "FRI"]
+    alertRecipients:
+      - "security-ops@crestviewfg.com"
+      - "ciso@crestviewfg.com"
+    siem_integration:
+      enabled: true
+      target: "CFG-Sentinel"
+      format: "CEF"
+
+  # ZTA Metadata
+  zta:
+    pillar: "Networks"
+    protectSurfaceLinkage:
+      - "Services: SWIFT interbank payment network"
+      - "Assets: On-premises servers and HSMs"
+    principle: "No standing privilege — every privileged access is brokered, approved, time-limited, and recorded"
+    threatMitigated: "Privileged credential theft and fraudulent SWIFT transaction execution"
+    realWorldReference: "2016 Bangladesh Bank heist — $81M USD via compromised SWIFT credentials with no compensating controls"
+    regulatoryAlignment:
+      - "OSFI B-13 Section 2.7: Formal incident management with audit capability"
+      - "OSFI B-13 Section 3.4: Cyber security response with escalation paths"
+      - "OSFI E-21: Operational resilience — JIT limits blast radius of credential compromise"
+      - "FINTRAC: Session recording prevents unauthorized AML record modification"

@@ -1,0 +1,142 @@
+{
+  "name": "CFG Digital Banking Portal — MFA Policy",
+  "description": "Zero Trust MFA enforcement policy for Crestview Financial Group digital banking portal. Enforces MFA on every session with adaptive risk assessment enabled.",
+  "system": false,
+  "status": "ACTIVE",
+  "settings": {
+    "factors": {
+      "okta_otp": {
+        "enroll": { "self": "REQUIRED" },
+        "consent": { "terms": "NONE" }
+      },
+      "okta_push": {
+        "enroll": { "self": "REQUIRED" },
+        "consent": { "terms": "NONE" }
+      }
+    }
+  },
+  "conditions": {
+    "app": {
+      "include": [
+        {
+          "type": "APP",
+          "id": "cfg-digital-banking-portal"
+        },
+        {
+          "type": "APP",
+          "id": "cfg-core-banking-system"
+        },
+        {
+          "type": "APP",
+          "id": "cfg-wealth-management-platform"
+        }
+      ]
+    },
+    "users": {
+      "include": [],
+      "exclude": []
+    }
+  },
+  "rules": [
+    {
+      "name": "CFG — Always Require MFA",
+      "status": "ACTIVE",
+      "priority": 1,
+      "conditions": {
+        "network": {
+          "connection": "ANYWHERE"
+        },
+        "riskScore": {
+          "level": "ANY"
+        }
+      },
+      "actions": {
+        "signon": {
+          "access": "ALLOW",
+          "requireFactor": true,
+          "factorPromptMode": "ALWAYS",
+          "rememberDeviceByDefault": false,
+          "session": {
+            "usePersistentCookie": false,
+            "maxSessionIdleMinutes": 15,
+            "maxSessionLifetimeMinutes": 480
+          }
+        }
+      },
+      "zta_notes": {
+        "pillar": "Identity",
+        "principle": "Never trust, always verify — no session is implicitly trusted regardless of network location or device",
+        "protect_surface_linkage": "Applications layer — CFG digital banking portal, core banking, wealth management",
+        "regulatory_alignment": "OSFI B-13 Principle 3 — continuous access verification and monitoring"
+      }
+    },
+    {
+      "name": "CFG — High Risk Step-Up",
+      "status": "ACTIVE",
+      "priority": 2,
+      "conditions": {
+        "riskScore": {
+          "level": "HIGH"
+        },
+        "behaviors": {
+          "include": [
+            "NEW_DEVICE",
+            "NEW_IP",
+            "NEW_GEO_LOCATION",
+            "VELOCITY_ANOMALY"
+          ]
+        }
+      },
+      "actions": {
+        "signon": {
+          "access": "ALLOW",
+          "requireFactor": true,
+          "factorPromptMode": "ALWAYS",
+          "stepUpMFA": true,
+          "session": {
+            "usePersistentCookie": false,
+            "maxSessionIdleMinutes": 5,
+            "maxSessionLifetimeMinutes": 60
+          }
+        }
+      },
+      "zta_notes": {
+        "pillar": "Identity",
+        "principle": "Risk-based adaptive authentication — high-risk signals trigger additional verification",
+        "protect_surface_linkage": "Applications + Data layers — step-up enforced before access to sensitive financial data",
+        "regulatory_alignment": "OSFI B-13 — adaptive controls proportional to risk profile"
+      }
+    },
+    {
+      "name": "CFG — SWIFT Operator Enhanced MFA",
+      "status": "ACTIVE",
+      "priority": 3,
+      "conditions": {
+        "groups": {
+          "include": ["cfg-swift-operators", "cfg-privileged-admins"]
+        }
+      },
+      "actions": {
+        "signon": {
+          "access": "ALLOW",
+          "requireFactor": true,
+          "factorPromptMode": "ALWAYS",
+          "requireHardwareToken": true,
+          "dualApprovalRequired": true,
+          "session": {
+            "usePersistentCookie": false,
+            "maxSessionIdleMinutes": 5,
+            "maxSessionLifetimeMinutes": 30
+          }
+        }
+      },
+      "zta_notes": {
+        "pillar": "Identity + Networks",
+        "principle": "Privileged identity requires strongest authentication — SWIFT operators require hardware token + dual approval",
+        "protect_surface_linkage": "Services layer — SWIFT payment network access",
+        "regulatory_alignment": "OSFI B-13 + FINTRAC — privileged access to payment systems requires strongest controls",
+        "real_world_reference": "Controls designed to prevent the attack vector used in the 2016 Bangladesh Bank SWIFT heist ($81M USD)"
+      }
+    }
+  ]
+}
