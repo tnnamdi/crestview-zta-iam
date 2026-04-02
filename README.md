@@ -60,13 +60,11 @@ MFA policy was set to **Always** - every login to the CFG banking portal require
 
 Adaptive MFA Risk Assessment was enabled, meaning every login transaction is risk-scored and recorded in audit logs. This supports anomaly detection and aligns with OSFI B-13's requirement for continuous monitoring of access events.
 
-![Adaptive Risk Assessment](okta/screenshots/03-adaptive-risk-assessment.png)
-
 ### Attack Protection — Active Controls
 
 Suspicious IP Throttling and Brute-force Protection are enabled, protecting CFG's banking portal against credential stuffing and automated attack campaigns - the primary external threat vector against the Applications layer of CFG's protect surface.
 
-![Attack Protection](okta/screenshots/04-attack-protection.png)
+![Attack Protection](okta/screenshots/03-attack-protection.png)
 
 ---
 
@@ -84,13 +82,9 @@ The Seneca College Entra ID tenant (120,000+ users, 193,000+ devices, 734 applic
 
 A real user identity object was inspected, demonstrating how CFG employee identities would be represented in Entra ID - including group memberships, assigned licenses and device associations.
 
-![User Profile](entra-id/screenshots/02-user-profile.png)
-
 ### Device Compliance View
 
 The device management layer was accessed, demonstrating how Entra ID enforces device compliance as a condition of access - a core control in the Devices pillar of CFG's ZTA architecture.
-
-![Devices View](entra-id/screenshots/03-devices-view.png)
 
 > **Note:** Access was performed at student permission level. Full Conditional Access policy configuration, Identity Protection risk detection, and Privileged Identity Management would be performed at the administrator level in a CFG production deployment. See `/entra-id/conditional-access-policy.json` for a simulated policy configuration.
 
