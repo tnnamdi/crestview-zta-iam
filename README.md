@@ -60,7 +60,7 @@ MFA policy was set to **Always** - every login to the CFG banking portal require
 
 Adaptive MFA Risk Assessment was enabled, meaning every login transaction is risk-scored and recorded in audit logs. This supports anomaly detection and aligns with OSFI B-13's requirement for continuous monitoring of access events.
 
-### Attack Protection — Active Controls
+### Attack Protection - Active Controls
 
 Suspicious IP Throttling and Brute-force Protection are enabled, protecting CFG's banking portal against credential stuffing and automated attack campaigns - the primary external threat vector against the Applications layer of CFG's protect surface.
 
@@ -74,7 +74,7 @@ Microsoft Entra ID was accessed via a real enterprise tenant to demonstrate the 
 
 ### Enterprise Tenant Dashboard
 
-The Seneca College Entra ID tenant (120,000+ users, 193,000+ devices, 734 applications, Entra Connect enabled) was used to demonstrate what a real hybrid identity environment looks like at scale — directly analogous to CFG's hybrid on-premises + Azure architecture.
+The Seneca College Entra ID tenant (120,000+ users, 193,000+ devices, 734 applications, Entra Connect enabled) was used to demonstrate what a real hybrid identity environment looks like at scale - directly analogous to CFG's hybrid on-premises + Azure architecture.
 
 ![Entra ID Dashboard](entra-id/screenshots/01-entra-dashboard.png)
 
